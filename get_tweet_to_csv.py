@@ -1,5 +1,8 @@
+
+import pandas as pd
 import tweepy
 
+import config
 import twitter_config
 
 # 先ほど取得した各種キーを代入する
@@ -13,12 +16,29 @@ auth = tweepy.OAuthHandler(CK, CS)
 auth.set_access_token(AT, AS)
 api = tweepy.API(auth)
 
-# 好きな言葉をツイート
-res = api.user_timeline(screen_name="CheerOnKonomin", count=100, tweet_mode='extended')
 
-for i in res:
-    print(i.full_text)
-    print(i._json["entities"]["urls"])
-    print(i._json["entities"]["hashtags"])
 
-    break
+def replace_urls(text, urls):
+    urls.sort(key=lambda url: url["indices"][0])
+    for url in sorted(urls, key=lambda url: url["indices"][0], reverse=True):
+        x, y = url["indices"]
+        text = text[:x] + url["expanded_url"] + text[y:]
+    return text
+
+def get_tweet_list(screen_name):
+    tweet_list = []
+    for tweet in tweepy.Cursor(api.user_timeline, screen_name=screen_name, count=100, tweet_mode='extended', wait_on_rate_limit = True).items():
+        full_text = tweet.full_text
+        text = replace_urls(full_text, tweet.entities["urls"])
+        text = '\\n'.join(text.splitlines())
+        tweet_list.append([text])
+    return tweet_list
+
+def main():
+    screen_name = "CheerOnKonomin"
+    save_path = "./tweets.csv"
+    tweet_list = get_tweet_list(screen_name)
+    pd.DataFrame(tweet_list).to_csv(save_path, header=False, index=False, encoding="utf-8")
+    
+if __name__ == "__main__":
+    main()
