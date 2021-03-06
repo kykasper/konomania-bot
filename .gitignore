@@ -1,0 +1,12 @@
+# config file
+config.py
+twitter_config.py
+
+# data
+sample_data
+
+#meta data
+__pycache__/
+.ipynb_checkpoints/
+.vscode/
+
