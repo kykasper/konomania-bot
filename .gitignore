@@ -4,8 +4,8 @@ twitter_config.py
 
 # data
 sample_data
-tweets.csv
-fixed_tweets.csv
+*.csv
+*.json
 
 #meta data
 __pycache__/
